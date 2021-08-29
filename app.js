@@ -3,6 +3,7 @@ const express = require('express');
 const middlewares = require('./src/middleware');
 const app = express();
 const glob = require('glob');
+require('./src/config/db');
 
 // custom logger 
 const appLogger = require('./src/utils/logger');
@@ -14,22 +15,22 @@ app.enable('trust proxy');
 middlewares(app);
 
 /* Router setup */
-const openRouter = express.Router(); // Open routes
-const apiRouter = express.Router(); // Protected routes
+const onBoardOpenRouter = express.Router(); // Open routes
+const onBoardApiRouter = express.Router(); // Protected routes
 
 /* Fetch router files and apply them to our routers */
-glob('./src/components/*', null, (err, items) => {
+glob('./src/components/onBoard/*', null, (err, items) => {
   items.forEach(component => {
     if (require(component).routes) require(component).routes(
-      openRouter,
-      apiRouter,
+      onBoardOpenRouter,
+      onBoardApiRouter,
     );
   });
 });
 
 // Admin Panel Routes
-app.use('/v1', openRouter);
-app.use('/api/v1', apiRouter);
+app.use('/v1/user', onBoardOpenRouter);
+app.use('/api/v1/user', onBoardApiRouter);
 
 // exporting the app
 module.exports = app;

@@ -12,7 +12,7 @@ class Socket {
   }
 
   init = (server) => {
-    this.io = require('socket.io').listen(server);
+    this.io = require('socket.io')(server);
     global.io = this.io; //added
     info(chalk.blue(' [ ✓ ] ') + `Application - Socket Initialized`);
     socketListeners.userListener.socketConnection(this.io); // USER LISTENERS 

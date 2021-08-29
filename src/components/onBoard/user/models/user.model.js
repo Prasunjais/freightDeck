@@ -4,27 +4,40 @@ require('mongoose-type-email');
 const Schema = mongoose.Schema;
 
 // schema
-const alerts = new Schema({
-  name: {
+const users = new Schema({
+  firstName: {
     type: String,
     required: true
   },
-  nameToDisplay: {
+  lastName: {
     type: String,
     required: true
   },
-  stateId: {
-    type: 'Number',
+  fullName: {
+    type: String,
     required: true
   },
-  districtId: [{
-    type: 'Number',
-    required: true
-  }],
   email: {
     type: mongoose.SchemaTypes.Email,
     unique: true
   },
+  password: {
+    type: String
+  },
+  userType: {
+    type: String,
+    enum: ['contractor', 'transporter'],
+    default: 'transporter'
+  },
+  loginDetails: [{
+    loggedInAt: {
+      type: Date
+    },
+    loginIp: {
+      type: String,
+      default: ''
+    }
+  }],
   status: {
     type: Number,
     default: 1,
@@ -40,11 +53,11 @@ const alerts = new Schema({
 });
 
 // creating indexes
-alerts.index({
-  'status': 1
+users.index({
+  'email': 1
 });
 
-alerts.plugin(autopopulate);
+users.plugin(autopopulate);
 
 // exporting the entire module
-module.exports = mongoose.model('alerts', alerts);
+module.exports = mongoose.model('users', users);
