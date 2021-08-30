@@ -60,4 +60,4 @@ users.index({
 users.plugin(autopopulate);
 
 // exporting the entire module
-module.exports = mongoose.model('users', users);
+module.exports = mongoose.model('users', users, 'users');

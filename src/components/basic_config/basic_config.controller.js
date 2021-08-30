@@ -102,6 +102,38 @@ class basicConfigController {
       }
     }
   }
+
+  // pagination 
+  GET_PAGINATION_LIMIT = () => {
+    try {
+      info('GET_PAGINATION_LIMIT');
+
+      // creating the data inside the database 
+      return Model.aggregate([{
+        $match: {
+          'configName': 'PAGINATION_LIMIT'
+        }
+      }]).allowDiskUse(true)
+        .then((res) => {
+          if (res && res.length)
+            return {
+              success: true,
+              data: isNaN(res[0].configValue) ? 60 : parseInt(res[0].configValue)
+            };
+          else return {
+            success: false
+          }
+        });
+
+      // catch any runtime error 
+    } catch (e) {
+      error(e);
+      return {
+        success: false,
+        error: e
+      }
+    }
+  }
 }
 
 // exporting the modules 

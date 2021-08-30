@@ -1,5 +1,5 @@
 const BaseController = require('../../baseController');
-const Model = require('./models/user.model');
+const Model = require('./models/contractTransporterBid.model');
 const camelCase = require('camelcase');
 const mongoose = require('mongoose');
 const {
@@ -180,43 +180,6 @@ class userController extends BaseController {
         })
         .select({
           'firstName': 1, 'lastName': 1, 'email': 1, 'userType': 1
-        })
-        .lean()
-        .then((res) => {
-          if (res && !_.isEmpty(res))
-            return {
-              success: true,
-              data: res
-            };
-          else return {
-            success: false
-          }
-        });
-      // catch any runtime error 
-    } catch (e) {
-      error(e);
-      return {
-        success: false,
-        error: e
-      }
-    }
-  }
-
-  // get user details using id 
-  getDetailsUsingId = async (userId, type = "contractor") => {
-    try {
-      info(`Check whether the id ${userId} and ${type}exist !`);
-
-      // creating the data inside the database 
-      return Model
-        .findOne({
-          '_id': mongoose.Types.ObjectId(userId),
-          'status': 1,
-          'userType': type,
-          'isDeleted': 0
-        })
-        .select({
-          'firstName': 1, 'lastName': 1, 'email': 1, 'userType': 1, 'fullName': 1
         })
         .lean()
         .then((res) => {

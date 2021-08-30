@@ -31,12 +31,13 @@ process.on('unhandledRejection', (reason, p) =>
 );
 
 // uncaught exception 
-process.on('uncaughtException', (err, origin) => {
-  error(
-    process.stderr.fd,
-    `Caught exception: ${err}\n` +
-    `Exception origin: ${origin}`);
-});
+// process.on('uncaughtException', (err, origin) => {
+//   console.log('Im aclled here');
+//   error(
+//     process.stderr.fd,
+//     `Caught exception: ${err}\n` +
+//     `Exception origin: ${origin}`);
+// });
 
 
 let server;

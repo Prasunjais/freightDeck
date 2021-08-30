@@ -1,10 +1,10 @@
 // user controller 
-const ctrl = require('./user.controller');
+const ctrl = require('./contractTransporterBid.controller');
 // custom joi validation
 const {
   joiSignUpValidate,
   joiLogInValidate
-} = require('./user.validators');
+} = require('./contractTransporterBid.validators');
 
 // import hooks 
 const {
