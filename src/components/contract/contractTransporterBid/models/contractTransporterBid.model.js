@@ -5,6 +5,11 @@ const Schema = mongoose.Schema;
 
 // schema
 const contractTransporterBid = new Schema({
+  contractId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'contractmaster',
+    autopopulate: false
+  },
   transporterId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'users',
@@ -15,7 +20,8 @@ const contractTransporterBid = new Schema({
     required: true
   },
   bidAmount: {
-
+    type: Number,
+    required: true
   },
   status: {
     type: Number,
@@ -32,9 +38,7 @@ const contractTransporterBid = new Schema({
 });
 
 // creating indexes
-contractTransporterBid.index({
-
-});
+contractTransporterBid.index({});
 
 contractTransporterBid.plugin(autopopulate);
 

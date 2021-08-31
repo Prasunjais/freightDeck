@@ -17,10 +17,11 @@ module.exports = async (req, res, next) => {
     info('Check whether the user email id is unique or not!');
 
     let email = req.body.email, // get the email id 
+      userType = req.body.userType, // get the user type
       empId = req.body.empId; // employee id 
 
     // check whether the email id is unique or not 
-    let isEmailUnique = await userCtrl.isEmailUnique(email);
+    let isEmailUnique = await userCtrl.isEmailUnique(email, userType);
 
     // if email is unique
     if (isEmailUnique.success) return next();

@@ -1,4 +1,3 @@
-const UserCtrl = require('../../components/onBoard/user/user.controller'); // user controller 
 // Responses & others utils 
 const Response = require('../../responses/response');
 const StatusCodes = require('../../facades/response');

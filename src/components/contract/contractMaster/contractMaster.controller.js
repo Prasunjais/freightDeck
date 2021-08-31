@@ -169,13 +169,18 @@ class contractMaster extends BaseController {
             }
           }, {
             $project: {
-              'transporterId': 1
+              'transporterId': 1,
+              'bidAmount': 1
             }
+          }, {
+            $sort: {
+              'bidAmount': 1
+            },
           }, {
             $lookup: {
               from: 'users',
               let: {
-                'id': '$_id'
+                'id': '$transporterId'
               },
               pipeline: [
                 {
@@ -183,7 +188,7 @@ class contractMaster extends BaseController {
                     'status': 1,
                     'isDeleted': 0,
                     '$expr': {
-                      '$eq': ['$transporterId', '$$id']
+                      '$eq': ['$_id', '$$id']
                     }
                   }
                 }, {
@@ -191,10 +196,28 @@ class contractMaster extends BaseController {
                     'fullName': 1
                   }
                 }],
-              as: 'customers'
+              as: 'transporter'
+            }
+          }, {
+            $unwind: {
+              path: '$transporter',
+              preserveNullAndEmptyArrays: true
             }
           }],
           as: 'transporterBiddingMapping'
+        }
+      }, {
+        "$addFields": {
+          "LowestBid": {
+            $ifNull: [{ $arrayElemAt: ['$transporterBiddingMapping', 0] }, {
+              "bidAmount": 0,
+              "transporterId": "",
+              "transporter": {
+                "_id": "",
+                "fullName": "N/A"
+              }
+            }]
+          }
         }
       }]).allowDiskUse(true);
 
@@ -267,13 +290,18 @@ class contractMaster extends BaseController {
             }
           }, {
             $project: {
-              'transporterId': 1
+              'transporterId': 1,
+              'bidAmount': 1
             }
+          }, {
+            $sort: {
+              'bidAmount': 1
+            },
           }, {
             $lookup: {
               from: 'users',
               let: {
-                'id': '$_id'
+                'id': '$transporterId'
               },
               pipeline: [
                 {
@@ -281,7 +309,7 @@ class contractMaster extends BaseController {
                     'status': 1,
                     'isDeleted': 0,
                     '$expr': {
-                      '$eq': ['$transporterId', '$$id']
+                      '$eq': ['$_id', '$$id']
                     }
                   }
                 }, {
@@ -289,7 +317,12 @@ class contractMaster extends BaseController {
                     'fullName': 1
                   }
                 }],
-              as: 'customers'
+              as: 'transporter'
+            }
+          }, {
+            $unwind: {
+              path: '$transporter',
+              preserveNullAndEmptyArrays: true
             }
           }],
           as: 'transporterBiddingMapping'
@@ -337,6 +370,68 @@ class contractMaster extends BaseController {
         success: false,
         error: err
       }
+    }
+  }
+
+  // Internal Function check whether the contract is valid and open
+  isValidOpenContract = async (contractId) => {
+    try {
+      info('Get Contract\'s Details !');
+
+      // get the query params
+      let date = new Date();
+
+      // get the list of asm in the allocated city
+      let searchObject = {
+        'status': 1,
+        'isDeleted': 0,
+        '_id': mongoose.Types.ObjectId(contractId),
+        'bidStartTime': {
+          $lte: date
+        },
+        'bidEndTime': {
+          $gte: date
+        }
+      };
+
+      let dataToProject = {
+        '_id': 1,
+        'division': 1,
+        'bidStartTime': 1,
+        'bidEndTime': 1,
+        'destinationAddress': 1,
+        'goodsDescription': 1,
+        'bidInitialAmount': 1,
+        'contractId': 1,
+        'createdAt': 1
+      }
+
+      // contract id
+      return Model.aggregate([{
+        $match: {
+          ...searchObject
+        }
+      }, {
+        $project: {
+          ...dataToProject
+        }
+      }]).allowDiskUse(true)
+        .then((res) => {
+          if (res && res.length)
+            return {
+              success: true,
+              data: res[res.length - 1]
+            };
+          else return {
+            success: false
+          }
+        });
+
+
+      // catch any runtime error 
+    } catch (e) {
+      error(e);
+      return this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, e));
     }
   }
 }

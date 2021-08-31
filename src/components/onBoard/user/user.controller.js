@@ -38,21 +38,21 @@ class userController extends BaseController {
       // catch any runtime error 
     } catch (e) {
       error(e);
-      this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, err));
+      this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, e));
     }
   }
 
   // Internal function to check whether the email is unique or not 
-  isEmailUnique = async (emailId) => {
+  isEmailUnique = async (emailId, userType) => {
     try {
       info(`Check whether the email ${emailId} of the user is unique or not !`);
 
       // creating the data inside the database 
       return Model
         .findOne({
-          $or: [{
-            'email': emailId
-          }],
+          'email': emailId,
+          'userType': userType,
+          'status': 1,
           'isDeleted': 0
         })
         .lean()
@@ -103,7 +103,7 @@ class userController extends BaseController {
   }
 
   // check whether email id exists or not 
-  isEmailExist = async (emailId) => {
+  isEmailExist = async (emailId, userType) => {
     try {
       info(`Check whether the email ${emailId} exist !`);
 
@@ -111,6 +111,8 @@ class userController extends BaseController {
       return Model
         .findOne({
           'email': emailId,
+          'userType': userType,
+          'status': 1,
           'isDeleted': 0
         })
         .lean()
@@ -135,7 +137,7 @@ class userController extends BaseController {
   }
 
   // get user password 
-  getUserPassword = async (emailId) => {
+  getUserPassword = async (emailId, userType) => {
     try {
       info(`Check whether the email ${emailId} exist !`);
 
@@ -143,6 +145,7 @@ class userController extends BaseController {
       return Model
         .findOne({
           'email': emailId,
+          'userType': userType,
           'isDeleted': 0
         })
         .select('password')
@@ -168,7 +171,7 @@ class userController extends BaseController {
   }
 
   // get user details 
-  getUserDetails = async (emailId) => {
+  getUserDetails = async (emailId, userType) => {
     try {
       info(`Check whether the email ${emailId} exist !`);
 
@@ -176,6 +179,8 @@ class userController extends BaseController {
       return Model
         .findOne({
           'email': emailId,
+          'userType': userType,
+          'status': 1,
           'isDeleted': 0
         })
         .select({

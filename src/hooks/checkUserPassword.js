@@ -18,9 +18,10 @@ module.exports = async (req, res, next) => {
 
     // get the email id 
     let emailId = req.body.email;
+    let userType = req.body.userType;
 
     // check whether the document type already exist or not 
-    let getUserPassword = await UserMasterCtrl.getUserPassword(emailId);
+    let getUserPassword = await UserMasterCtrl.getUserPassword(emailId, userType);
 
     // check whether the document type already exists
     if (getUserPassword.success) {

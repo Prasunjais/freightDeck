@@ -22,7 +22,8 @@ module.exports = async (req, res, next) => {
     const expiryTime = await BasicCtrl.GET_TOKEN_EXPIRY_TIME_IN_MIN().then((res) => { if (res.success) return res.data; else return 50; });
     let emailId = req.body.email; // get the email id 
     let jwtToken = '';
-    let getUserData = await userMasterCtrl.getUserDetails(emailId); // get user details 
+    let userType = req.body.userType; // get the user type
+    let getUserData = await userMasterCtrl.getUserDetails(emailId, userType); // get user details 
 
     // get user data 
     if (getUserData.success) {

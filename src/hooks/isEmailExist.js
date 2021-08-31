@@ -17,9 +17,10 @@ module.exports = async (req, res, next) => {
     info('Check whether the user email id is unique or not!');
 
     let email = req.body.email || req.params.email; // get the email id 
+    let userType = req.body.userType; // check the user type 
 
     // check whether the email id is unique or not 
-    let isEmailExist = await userCtrl.isEmailExist(email)
+    let isEmailExist = await userCtrl.isEmailExist(email, userType)
 
     // if email is unique
     if (isEmailExist.success) {

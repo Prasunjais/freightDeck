@@ -14,194 +14,48 @@ class userController extends BaseController {
   // constructor 
   constructor() {
     super();
-    this.messageTypes = this.messageTypes.userAuthentication;
+    this.messageTypes = this.messageTypes.contractTransporterBid;
   }
 
   // do something 
-  signUp = async (req, res) => {
+  placeBid = async (req, res) => {
     try {
       info('Creating a new user !');
-      let fullName = `${req.body.firstName} ${req.body.lastName}`;
+      let contractId = req.params.contractId;
 
-      // inserting the new user into the db
-      let isInserted = await Model.create({
-        ...req.body, fullName
-      })
+      // data to push 
+      let dataToPush = {
+        contractId: mongoose.Types.ObjectId(contractId),
+        bidAmount: parseFloat(req.body.bidAmount),
+        transporterId: mongoose.Types.ObjectId(req.body.transporterDetails._id),
+        transporterName: req.body.transporterDetails.fullName
+      };
+
+      // updating the model with the bid
+      let isUpdated = await Model.updateOne({
+        contractId: mongoose.Types.ObjectId(contractId),
+        transporterId: mongoose.Types.ObjectId(req.body.transporterDetails._id),
+      }, {
+        $set: {
+          ...dataToPush
+        }
+      }, {
+        upsert: true,
+        new: true
+      }).lean()
 
       // is inserted 
-      if (isInserted && !_.isEmpty(isInserted)) {
+      if (isUpdated && !_.isEmpty(isUpdated)) {
         // success response 
-        isInserted.password = undefined;
-        return this.success(req, res, this.status.HTTP_OK, isInserted, this.messageTypes.userCreatedSuccessfully);
-      } else return this.errors(req, res, this.status.HTTP_CONFLICT, this.messageTypes.userNotCreated);
+        return this.success(req, res, this.status.HTTP_OK, isUpdated, this.messageTypes.bidPlacedSuccessfully);
+      } else return this.errors(req, res, this.status.HTTP_CONFLICT, this.messageTypes.errorWhilePlacingBid);
 
       // catch any runtime error 
     } catch (e) {
       error(e);
-      this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, err));
+      this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, e));
     }
   }
-
-  // Internal function to check whether the email is unique or not 
-  isEmailUnique = async (emailId) => {
-    try {
-      info(`Check whether the email ${emailId} of the user is unique or not !`);
-
-      // creating the data inside the database 
-      return Model
-        .findOne({
-          $or: [{
-            'email': emailId
-          }],
-          'isDeleted': 0
-        })
-        .lean()
-        .then((res) => {
-          if (res && !_.isEmpty(res))
-            return {
-              success: false,
-            };
-          else return {
-            success: true
-          }
-        });
-      // catch any runtime error 
-    } catch (e) {
-      error(e);
-      return {
-        success: false,
-        error: e
-      }
-    }
-  }
-
-  // login authentication
-  login = async (req, res) => {
-    try {
-      info('Generating a new auth token !');
-
-      // updating the last login details 
-      await Model.updateOne({
-        email: req.body.email,
-        status: 1
-      }, {
-        $push: {
-          loginDetails: {
-            loggedInAt: new Date()
-          }
-        }
-      })
-
-      // is logged in 
-      return this.success(req, res, this.status.HTTP_OK, req.body, this.messageTypes.userLoggedIn);
-
-      // catch any runtime error 
-    } catch (err) {
-      error(err);
-      this.errors(req, res, this.status.HTTP_INTERNAL_SERVER_ERROR, this.exceptions.internalServerErr(req, err));
-    }
-  }
-
-  // check whether email id exists or not 
-  isEmailExist = async (emailId) => {
-    try {
-      info(`Check whether the email ${emailId} exist !`);
-
-      // creating the data inside the database 
-      return Model
-        .findOne({
-          'email': emailId,
-          'isDeleted': 0
-        })
-        .lean()
-        .then((res) => {
-          if (res && !_.isEmpty(res))
-            return {
-              success: true,
-              data: res
-            };
-          else return {
-            success: false
-          }
-        });
-      // catch any runtime error 
-    } catch (e) {
-      error(e);
-      return {
-        success: false,
-        error: e
-      }
-    }
-  }
-
-  // get user password 
-  getUserPassword = async (emailId) => {
-    try {
-      info(`Check whether the email ${emailId} exist !`);
-
-      // creating the data inside the database 
-      return Model
-        .findOne({
-          'email': emailId,
-          'isDeleted': 0
-        })
-        .select('password')
-        .lean()
-        .then((res) => {
-          if (res && !_.isEmpty(res))
-            return {
-              success: true,
-              data: res
-            };
-          else return {
-            success: false
-          }
-        });
-      // catch any runtime error 
-    } catch (e) {
-      error(e);
-      return {
-        success: false,
-        error: e
-      }
-    }
-  }
-
-  // get user details 
-  getUserDetails = async (emailId) => {
-    try {
-      info(`Check whether the email ${emailId} exist !`);
-
-      // creating the data inside the database 
-      return Model
-        .findOne({
-          'email': emailId,
-          'isDeleted': 0
-        })
-        .select({
-          'firstName': 1, 'lastName': 1, 'email': 1, 'userType': 1
-        })
-        .lean()
-        .then((res) => {
-          if (res && !_.isEmpty(res))
-            return {
-              success: true,
-              data: res
-            };
-          else return {
-            success: false
-          }
-        });
-      // catch any runtime error 
-    } catch (e) {
-      error(e);
-      return {
-        success: false,
-        error: e
-      }
-    }
-  }
-
 }
 
 // exporting the modules 
